@@ -52,6 +52,7 @@ func initEtcd(addr []string, keyFormat string, timeout time.Duration) (err error
 
 		for _, ev := range resp.Kvs {
 			// 返回的类型不是string,需要强制转换
+			fmt.Printf("etcd conf is %s", string(ev.Value))
 			confChan <- string(ev.Value)
 			fmt.Printf("etcd key = %s , etcd value = %s", ev.Key, ev.Value)
 		}
