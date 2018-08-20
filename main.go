@@ -20,7 +20,7 @@ func main() {
 		return
 	}
 
-	timeout := time.Duration(appConf.EtcdTimeOut)
+	timeout := time.Duration(appConf.EtcdTimeOut) * time.Second
 	var etcdAddrSlice []string
 	etcdAddrSlice = append(etcdAddrSlice, appConf.EtcdAddr)
 	err = initEtcd(etcdAddrSlice, appConf.EtcdWatchKey, timeout)
