@@ -1,4 +1,4 @@
-package logagent
+package main
 
 //  LogConfig is struct from etcd log conf
 type LogConfig struct {

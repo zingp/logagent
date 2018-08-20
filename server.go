@@ -1,4 +1,4 @@
-package logagent
+package main
 
 import (
 	"encoding/json"
