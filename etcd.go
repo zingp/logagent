@@ -64,6 +64,8 @@ func initEtcd(addr []string, keyFormat string, timeout time.Duration) (err error
 
 func etcdWatch(keys []string) {
 	var watchChans []client.WatchChan
+	defer waitGroup.Done()
+
 	for _, key := range keys {
 		rch := cli.Watch(context.Background(), key)
 		watchChans = append(watchChans, rch)
@@ -71,19 +73,22 @@ func etcdWatch(keys []string) {
 
 	for {
 		for _, watchC := range watchChans {
-			select {
-			case wresp := <-watchC:
+			for wresp := range  watchC {
 				for _, ev := range wresp.Events {
 					confChan <- string(ev.Kv.Value)
 					logs.Debug("etcd key = %s , etcd value = %s", ev.Kv.Key, ev.Kv.Value)
 				}
-			default:
 			}
+			// case wresp := <-watchC:
+			// 	for _, ev := range wresp.Events {
+			// 		confChan <- string(ev.Kv.Value)
+			// 		logs.Debug("etcd key = %s , etcd value = %s", ev.Kv.Key, ev.Kv.Value)
+			// 	}
+			// default:
+			// }
 		}
 		time.Sleep(time.Second)
 	}
-	// 这行代码永远访问不到
-	waitGroup.Done()
 }
 
 //GetEtcdConfChan is func get etcd conf

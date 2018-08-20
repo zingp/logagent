@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/Shopify/sarama"
 	"github.com/astaxie/beego/logs"
 )
@@ -40,6 +41,7 @@ func NewKafkaSender(kafkaAddr string, threadNum int) (kafka *KafkaSender, err er
 	kafka.client = client
 
 	for i := 0; i < threadNum; i++ {
+		fmt.Println("start to send kfk")
 		go kafka.sendMsgToKfk()
 	}
 	return

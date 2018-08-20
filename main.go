@@ -13,12 +13,14 @@ func main() {
 		fmt.Printf("init conf failed:%v", err)
 		return
 	}
+	fmt.Println("init conf success")
 
 	err = initLogs(appConf.LogFile, appConf.LogLevel)
 	if err != nil {
 		fmt.Printf("init log failed:%v", err)
 		return
 	}
+	fmt.Println("init logs success")
 
 	timeout := time.Duration(appConf.EtcdTimeOut) * time.Second
 	var etcdAddrSlice []string
@@ -28,12 +30,14 @@ func main() {
 		logs.Error("init etcd Failed:%v", err)
 		return
 	}
+	fmt.Println("init etcd success")
 
 	err = initKafka(appConf.KafkaAddr, appConf.ThreadNum)
 	if err != nil {
 		logs.Error("init kafka Failed:%v", err)
 		return
 	}
+	fmt.Println("init kafka success")
 
 	runServer()
 }
