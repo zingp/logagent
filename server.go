@@ -65,6 +65,7 @@ func (t *TailMgr) AddLogFile(conf LogConfig) (err error) {
 
 	t.tailObjMap[conf.LogPath] = tailObj
 
+	waitGroup.Add(1)
 	go tailObj.readLog()
 	return
 }
@@ -125,6 +126,8 @@ func (t *TailMgr) Process() {
 }
 
 func (t *TailObj) readLog() {
+	defer waitGroup.Done()
+	
 	for line := range t.tail.Lines {
 		if line.Err != nil {
 			logs.Error("read line error:%v ", line.Err)

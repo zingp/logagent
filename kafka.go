@@ -42,13 +42,15 @@ func NewKafkaSender(kafkaAddr string, threadNum int) (kafka *KafkaSender, err er
 
 	for i := 0; i < threadNum; i++ {
 		fmt.Println("start to send kfk")
+		waitGroup.Add(1)
 		go kafka.sendMsgToKfk()
 	}
 	return
 }
 
 func (k *KafkaSender) sendMsgToKfk() {
-
+	defer waitGroup.Done()
+	
 	for v := range k.lineChan {
 		msg := &sarama.ProducerMessage{}
 		msg.Topic = v.topic
