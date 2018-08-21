@@ -59,11 +59,11 @@ func initEtcd(addr []string, keyFormat string, timeout time.Duration) (err error
 	}
 
 	waitGroup.Add(1)
-	go etcdWatch(etcdKeys)
+	go etcdWatch(cli, etcdKeys)
 	return
 }
 
-func etcdWatch(keys []string) {
+func etcdWatch(cli *client.Client, keys []string) {
 	var watchChans []client.WatchChan
 	defer waitGroup.Done()
 
