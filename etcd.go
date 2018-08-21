@@ -26,8 +26,7 @@ func initEtcd(addr []string, keyFormat string, timeout time.Duration) (err error
 		fmt.Println("connect etcd error:", err)
 		return
 	}
-	defer cli.Close()
-
+	// defer cli.Close()   //这里千万不能关闭
 	// 生成etcd key
 	var etcdKeys []string
 	ips, err := getLocalIP()
@@ -57,16 +56,12 @@ func initEtcd(addr []string, keyFormat string, timeout time.Duration) (err error
 			fmt.Printf("etcd key = %s , etcd value = %s", ev.Key, ev.Value)
 		}
 	}
-
-	waitGroup.Add(1)
-	go etcdWatch(cli, etcdKeys)
+	go etcdWatch(etcdKeys)
 	return
 }
 
-func etcdWatch(cli *client.Client, keys []string) {
+func etcdWatch(keys []string) {
 	var watchChans []client.WatchChan
-	defer waitGroup.Done()
-
 	for _, key := range keys {
 		rch := cli.Watch(context.Background(), key)
 		watchChans = append(watchChans, rch)
@@ -74,19 +69,14 @@ func etcdWatch(cli *client.Client, keys []string) {
 
 	for {
 		for _, watchC := range watchChans {
-			for wresp := range  watchC {
+			select {
+			case wresp := <-watchC:
 				for _, ev := range wresp.Events {
 					confChan <- string(ev.Kv.Value)
 					logs.Debug("etcd key = %s , etcd value = %s", ev.Kv.Key, ev.Kv.Value)
 				}
+			default:
 			}
-			// case wresp := <-watchC:
-			// 	for _, ev := range wresp.Events {
-			// 		confChan <- string(ev.Kv.Value)
-			// 		logs.Debug("etcd key = %s , etcd value = %s", ev.Kv.Key, ev.Kv.Value)
-			// 	}
-			// default:
-			// }
 		}
 		time.Sleep(time.Second)
 	}

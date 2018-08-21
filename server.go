@@ -126,7 +126,6 @@ func (t *TailMgr) Process() {
 }
 
 func (t *TailObj) readLog() {
-	defer waitGroup.Done()
 	
 	for line := range t.tail.Lines {
 		if line.Err != nil {
