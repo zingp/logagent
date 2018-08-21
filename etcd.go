@@ -26,6 +26,7 @@ func initEtcd(addr []string, keyFormat string, timeout time.Duration) (err error
 		fmt.Println("connect etcd error:", err)
 		return
 	}
+	logs.Debug("init etcd success")
 	// defer cli.Close()   //这里千万不能关闭
 	// 生成etcd key
 	var etcdKeys []string
@@ -56,11 +57,15 @@ func initEtcd(addr []string, keyFormat string, timeout time.Duration) (err error
 			fmt.Printf("etcd key = %s , etcd value = %s", ev.Key, ev.Value)
 		}
 	}
+	
+	waitGroup.Add(1)
 	go etcdWatch(etcdKeys)
 	return
 }
 
 func etcdWatch(keys []string) {
+	defer waitGroup.Done()
+
 	var watchChans []client.WatchChan
 	for _, key := range keys {
 		rch := cli.Watch(context.Background(), key)
