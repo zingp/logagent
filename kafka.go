@@ -50,7 +50,7 @@ func NewKafkaSender(kafkaAddr string, threadNum int) (kafka *KafkaSender, err er
 
 func (k *KafkaSender) sendMsgToKfk() {
 	defer waitGroup.Done()
-	
+
 	for v := range k.lineChan {
 		msg := &sarama.ProducerMessage{}
 		msg.Topic = v.topic

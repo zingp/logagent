@@ -126,7 +126,7 @@ func (t *TailMgr) Process() {
 }
 
 func (t *TailObj) readLog() {
-	
+
 	for line := range t.tail.Lines {
 		if line.Err != nil {
 			logs.Error("read line error:%v ", line.Err)

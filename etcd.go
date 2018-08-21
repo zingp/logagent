@@ -17,7 +17,7 @@ var (
 )
 
 func initEtcd(addr []string, keyFormat string, timeout time.Duration) (err error) {
-
+	// 此处是对cli全局变量的初始化，建立建立连接之后不能关闭
 	cli, err = client.New(client.Config{
 		Endpoints:   addr,
 		DialTimeout: timeout,
@@ -28,7 +28,7 @@ func initEtcd(addr []string, keyFormat string, timeout time.Duration) (err error
 	}
 	logs.Debug("init etcd success")
 	// defer cli.Close()   //这里千万不能关闭
-	// 生成etcd key
+
 	var etcdKeys []string
 	ips, err := getLocalIP()
 	if err != nil {
@@ -52,17 +52,18 @@ func initEtcd(addr []string, keyFormat string, timeout time.Duration) (err error
 
 		for _, ev := range resp.Kvs {
 			// 返回的类型不是string,需要强制转换
-			// fmt.Printf("etcd conf is %s", string(ev.Value))
 			confChan <- string(ev.Value)
 			fmt.Printf("etcd key = %s , etcd value = %s", ev.Key, ev.Value)
 		}
 	}
 
 	waitGroup.Add(1)
+	// 启一个协程，监听etcd中对应的配置变化
 	go etcdWatch(etcdKeys)
 	return
 }
 
+// 检测etcd中配置是否有变化
 func etcdWatch(keys []string) {
 	defer waitGroup.Done()
 

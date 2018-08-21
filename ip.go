@@ -5,6 +5,7 @@ import (
 	"net"
 )
 
+// 获取本机IP地址列表
 var ipArray []string
 
 func getLocalIP() (ips []string, err error) {
