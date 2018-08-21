@@ -18,7 +18,7 @@ var (
 
 func initEtcd(addr []string, keyFormat string, timeout time.Duration) (err error) {
 
-	cli, err := client.New(client.Config{
+	cli, err = client.New(client.Config{
 		Endpoints:   addr,
 		DialTimeout: timeout,
 	})
@@ -57,7 +57,7 @@ func initEtcd(addr []string, keyFormat string, timeout time.Duration) (err error
 			fmt.Printf("etcd key = %s , etcd value = %s", ev.Key, ev.Value)
 		}
 	}
-	
+
 	waitGroup.Add(1)
 	go etcdWatch(etcdKeys)
 	return
