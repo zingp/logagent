@@ -6,13 +6,14 @@ import (
 
 	"github.com/astaxie/beego/logs"
 )
-
+// SecondLimit to limit num in one second
 type SecondLimit struct {
 	unixSecond int64
 	curCount   int32
 	limit      int32
 }
 
+// NewSecondLimit to init a SecondLimit obj
 func NewSecondLimit(limit int32) *SecondLimit {
 	secLimit := &SecondLimit{
 		unixSecond: time.Now().Unix(),
@@ -23,6 +24,7 @@ func NewSecondLimit(limit int32) *SecondLimit {
 	return secLimit
 }
 
+// Add is func to 
 func (s *SecondLimit) Add(count int) {
 	sec := time.Now().Unix()
 	if sec == s.unixSecond {
@@ -34,6 +36,7 @@ func (s *SecondLimit) Add(count int) {
 	atomic.StoreInt32(&s.curCount, int32(count))
 }
 
+// Wait to limit num
 func (s *SecondLimit) Wait() bool {
 	for {
 		sec := time.Now().Unix()
