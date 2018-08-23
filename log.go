@@ -33,6 +33,6 @@ func initLogs(filename string, level string) (err error) {
 	}
 
 	logs.SetLogger(logs.AdapterFile, string(configStr))
-	// logs.SetLogFuncCall(true) // 打印文件名、文件行号
+	// logs.SetLogFuncCall(true) // print file name and row number
 	return
 }

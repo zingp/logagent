@@ -27,12 +27,14 @@ type TailMgr struct {
 	lock       sync.Mutex
 }
 
+// NewTailMgr init TailMgr obj
 func NewTailMgr() *TailMgr {
 	return &TailMgr{
 		tailObjMap: make(map[string]*TailObj, 16),
 	}
 }
 
+//AddLogFile to Add tail obj
 func (t *TailMgr) AddLogFile(conf LogConfig) (err error) {
 	t.lock.Lock()
 	defer t.lock.Unlock()
@@ -46,8 +48,8 @@ func (t *TailMgr) AddLogFile(conf LogConfig) (err error) {
 	tail, err := tail.TailFile(conf.LogPath, tail.Config{
 		ReOpen:    true,
 		Follow:    true,
-		Location:  &tail.SeekInfo{Offset: 0, Whence: 2}, // 读到末尾
-		MustExist: false,                                //不存在也不报错
+		Location:  &tail.SeekInfo{Offset: 0, Whence: 2}, // read to tail
+		MustExist: false,  //file does not exist, it does not return an error 
 		Poll:      true,
 	})
 	if err != nil {
@@ -62,7 +64,6 @@ func (t *TailMgr) AddLogFile(conf LogConfig) (err error) {
 		secLimit: NewSecondLimit(int32(conf.SendRate)),
 		exitChan: make(chan bool, 1),
 	}
-
 	t.tailObjMap[conf.LogPath] = tailObj
 
 	waitGroup.Add(1)
@@ -105,7 +106,6 @@ func (t *TailMgr) reloadConfig(logConfArr []LogConfig) (err error) {
 
 // Process hava two func get new log conf and reload conf
 func (t *TailMgr) Process() {
-	// GetEtcdConfChan()是管道
 	for conf := range GetEtcdConfChan() {
 		logs.Debug("log conf: %v", conf)
 
@@ -138,7 +138,7 @@ func (t *TailObj) readLog() {
 			continue
 		}
 
-		kafkaSender.addMessage(line.Text, t.logConf.Topic)
+		kafkaSend.addMessage(line.Text, t.logConf.Topic)
 		t.secLimit.Add(1)
 		t.secLimit.Wait()
 
@@ -153,9 +153,7 @@ func (t *TailObj) readLog() {
 }
 
 func runServer() {
-	// 管理日志收集实例管理
 	tailMgr = NewTailMgr()
-
 	tailMgr.Process()
 	waitGroup.Wait()
 }

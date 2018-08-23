@@ -6,31 +6,32 @@ import (
 	"github.com/astaxie/beego/logs"
 )
 
-var kafkaSender = &KafkaSender{}
+var kafkaSend = &KafkaSend{}
 
 type Message struct {
 	line  string
 	topic string
 }
 
-type KafkaSender struct {
+type KafkaSend struct {
 	client   sarama.SyncProducer
 	lineChan chan *Message
 }
 
 func initKafka(kafkaAddr string, threadNum int) (err error) {
-	kafkaSender, err = NewKafkaSender(kafkaAddr, threadNum)
+	kafkaSend, err = NewKafkaSend(kafkaAddr, threadNum)
 	return
 }
 
-func NewKafkaSender(kafkaAddr string, threadNum int) (kafka *KafkaSender, err error) {
-	kafka = &KafkaSender{
+// NewKafkaSend is 
+func NewKafkaSend(kafkaAddr string, threadNum int) (kafka *KafkaSend, err error) {
+	kafka = &KafkaSend{
 		lineChan: make(chan *Message, 10000),
 	}
 
 	config := sarama.NewConfig()
-	config.Producer.RequiredAcks = sarama.WaitForAll          //等待kafka ack
-	config.Producer.Partitioner = sarama.NewRandomPartitioner // 随机分区
+	config.Producer.RequiredAcks = sarama.WaitForAll          // wait kafka ack
+	config.Producer.Partitioner = sarama.NewRandomPartitioner // random partition
 	config.Producer.Return.Successes = true
 
 	client, err := sarama.NewSyncProducer([]string{kafkaAddr}, config)
@@ -48,7 +49,7 @@ func NewKafkaSender(kafkaAddr string, threadNum int) (kafka *KafkaSender, err er
 	return
 }
 
-func (k *KafkaSender) sendMsgToKfk() {
+func (k *KafkaSend) sendMsgToKfk() {
 	defer waitGroup.Done()
 
 	for v := range k.lineChan {
@@ -64,7 +65,7 @@ func (k *KafkaSender) sendMsgToKfk() {
 	}
 }
 
-func (k *KafkaSender) addMessage(line string, topic string) (err error) {
+func (k *KafkaSend) addMessage(line string, topic string) (err error) {
 	k.lineChan <- &Message{line: line, topic: topic}
 	return
 }

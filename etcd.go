@@ -17,7 +17,7 @@ var (
 )
 
 func initEtcd(addr []string, keyFormat string, timeout time.Duration) (err error) {
-	// 此处是对cli全局变量的初始化，建立建立连接之后不能关闭
+	// init a global var cli and can not close
 	cli, err = client.New(client.Config{
 		Endpoints:   addr,
 		DialTimeout: timeout,
@@ -27,7 +27,7 @@ func initEtcd(addr []string, keyFormat string, timeout time.Duration) (err error
 		return
 	}
 	logs.Debug("init etcd success")
-	// defer cli.Close()   //这里千万不能关闭
+	// defer cli.Close()   //can not close
 
 	var etcdKeys []string
 	ips, err := getLocalIP()
@@ -40,7 +40,7 @@ func initEtcd(addr []string, keyFormat string, timeout time.Duration) (err error
 		etcdKeys = append(etcdKeys, key)
 	}
 
-	// 第一次运行主动从etcd拉取配置
+	// first, pull conf from etcd
 	for _, key := range etcdKeys {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		resp, err := cli.Get(ctx, key)
@@ -51,19 +51,19 @@ func initEtcd(addr []string, keyFormat string, timeout time.Duration) (err error
 		}
 
 		for _, ev := range resp.Kvs {
-			// 返回的类型不是string,需要强制转换
+			// return result is not string
 			confChan <- string(ev.Value)
 			fmt.Printf("etcd key = %s , etcd value = %s", ev.Key, ev.Value)
 		}
 	}
 
 	waitGroup.Add(1)
-	// 启一个协程，监听etcd中对应的配置变化
+	// second, start a goroutine to watch etcd
 	go etcdWatch(etcdKeys)
 	return
 }
 
-// 检测etcd中配置是否有变化
+// watch etcd
 func etcdWatch(keys []string) {
 	defer waitGroup.Done()
 
@@ -88,7 +88,7 @@ func etcdWatch(keys []string) {
 	}
 }
 
-//GetEtcdConfChan is func get etcd conf
+//GetEtcdConfChan is func get etcd conf add to chan
 func GetEtcdConfChan() chan string {
 	return confChan
 }
