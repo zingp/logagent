@@ -31,17 +31,19 @@ logagent 是一个实时收集日志的并发送到kafka集群的客户端。
 `[
 	{
 	"service":"test_service",        
-	"log_path": "/search/nginx/logs/ping-android.shouji.sogou.com_access_log",   "topic": "nginx_log",
+	"log_path":"/search/nginx/logs/ping-android.shouji.sogoucom_access_log",
+    "topic": "nginx_log",
 	"send_rate": 1000
 	},
 	{
 	"service":"srv.android.shouji.sogou.com",
-	"log_path": "/search/nginx/logs/srv.android.shouji.sogou.com_access_log","topic": "nginx_log",
+	"log_path":"/search/nginx/logs/srv.android.shouji.sogou.com_access_log",
+    "topic": "nginx_log",
 	"send_rate": 2000
 	}
 ]`
 
-    - "service":"服务名称",        
-    - "log_path": "应该监听的日志文件",   
-    - "topic": "kfk topic",
-    - "send_rate": "日志条数限制"
+    "service":"服务名称",        
+    "log_path": "应该监听的日志文件",   
+    "topic": "kfk topic",
+    "send_rate": "日志条数限制"
