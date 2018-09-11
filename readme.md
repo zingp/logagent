@@ -27,7 +27,7 @@ logagent 是一个实时收集日志的并发送到kafka集群的客户端。
         level = debug                              # 日志级别
 
 
-### etcd vulue说明
+### etcd value说明
 `[
 	{
 	"service":"test_service",        
@@ -45,4 +45,3 @@ logagent 是一个实时收集日志的并发送到kafka集群的客户端。
     - "log_path": "应该监听的日志文件",   
     - "topic": "kfk topic",
     - "send_rate": "日志条数限制"
-
